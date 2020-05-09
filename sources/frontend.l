@@ -16,41 +16,33 @@ IS                      (u|U|l|L)*
 %}
 
 %%
-"else"                  { printf("ELSE\n"); }
-"extern"                { printf("EXTERN\n"); }
-"for"                   { printf("FOR\n"); }
-"if"                    { printf("IF\n"); }
-"int"                   { printf("INT\n"); }
-"return"                { printf("RETURN\n"); }
-"sizeof"                { printf("SIZEOF\n"); }
-"struct"                { printf("STRUCT\n"); }
-"void"                  { printf("VOID\n"); }
-"while"                 { printf("WHILE\n"); }
+"else"                  { printf("ELSE "); }
+"extern"                { printf("EXTERN "); }
+"for"                   { printf("FOR "); }
+"if"                    { printf("IF "); }
+"int"                   { printf("INT "); }
+"return"                { printf("RETURN "); }
+"sizeof"                { printf("SIZE "); }
+"struct"                { printf("STRUCT "); }
+"void"                  { printf("VOID "); }
+"while"                 { printf("WHILE "); }
 
-{L}({L}|{D})*           { printf("ID\n"); }
+{L}({L}|{D})*           { printf("ID "); }
 
-0[xX]{H}+{IS}?          { /* A completer */ }
-0{D}+{IS}?              { /* A completer */ }
-{D}+{IS}?               { /* A completer */ }
-L?'(\\.|[^\\'])+'       { /* A completer */ }
+"->champ"               { printf("CHAMP "); }
+"&&"                    { printf("AND "); }
+"||"                    { printf("OR "); }
+"<"                     { printf("LESS "); }
+">"                     { printf("GREAT "); }
+"<="                    { printf("LESSEQ "); }
+">="                    { printf("GREATEQ "); }
+"=="                    { printf("EQ "); }
+"!="                    { printf("NOTEQ "); }
 
-{D}+{E}{FS}?            { /* A completer */ }
-{D}*"."{D}+({E})?{FS}?  { /* A completer */ }
-{D}+"."{D}*({E})?{FS}?  { /* A completer */ }
+"/*"                    { printf("COMMSTART "); }
+"*/"                    { printf("COMMEND "); }
 
-L?\"(\\.|[^\\"])*\"     { /* A completer */ }
-
-"->"                    { /* A completer */ }
-"&&"                    { /* A completer */ }
-"||"                    { /* A completer */ }
-"<"                     { /* A completer */ }
-">"                     { /* A completer */ }
-"<="                    { /* A completer */ }
-">="                    { /* A completer */ }
-"=="                    { /* A completer */ }
-"!="                    { /* A completer */ }
-
-[ \t\v\n\f]             { /* A completer */ }
+\n                      { printf("\n"); }
+[ \t\v\f]               { /* ignore whitespace */ }
 .                       { return yytext[0]; }
 %%
-
