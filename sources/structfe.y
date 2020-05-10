@@ -185,8 +185,12 @@ expression_statement
         ;
 
 selection_statement
-        : IF '(' expression ')' statement
-        | IF '(' expression ')' statement ELSE statement
+        : IF '(' expression ')' statement else_statement
+        ;
+
+else_statement
+        : %empty
+        | ELSE statement
         ;
 
 iteration_statement
