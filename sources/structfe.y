@@ -1,3 +1,24 @@
+%{
+#include <stdio.h>
+#include <string.h>
+ 
+void yyerror(const char *str)
+{
+        fprintf(stderr,"error: %s\n",str);
+}
+ 
+int yywrap()
+{
+        return 1;
+} 
+  
+main()
+{
+        yyparse();
+} 
+
+%}
+
 %token IDENTIFIER CONSTANT SIZEOF
 %token PTR_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP
