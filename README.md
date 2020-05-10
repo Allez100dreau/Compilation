@@ -6,8 +6,10 @@ Il faudra réaliser deux programmes:
 
 2. Un simple parseur pour le langage STRUCIT-backend, qui permet devérifier si un code écrit en langage STRUCIT-backend est correct lexicalement et syntaxiquement (pas d’analyse sémantique demandée pour ce parseur). Il devra afficher des messages d’erreur sinon. La vérification sémantique du code généré STRUCIT-backend se fera à la main.
 
-Comment compiler:
+## Comment compiler:
 
-flex example.l \n
-bison -d example.y \n
+```
+flex example.l
+bison -d example.y
 cc lex.yy.c y.tab.c -o example
+```
