@@ -8,6 +8,6 @@ Il faudra réaliser deux programmes:
 
 Comment compiler:
 
-flex example.l
-bison -d example.y
+flex example.l \n
+bison -d example.y \n
 cc lex.yy.c y.tab.c -o example
