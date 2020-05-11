@@ -33,6 +33,8 @@ IS                      (u|U|l|L)*
 "=="                    { ECHO; return EQ_OP; }
 "!="                    { ECHO; return NE_OP; }
 
+\/\*(.|\n)*\*\/         { ECHO; /* ignore comments */ }
+
 [ \n\t\v\f]             { ECHO; /* ignore whitespace */ }
 .                       { ECHO; return (int) yytext[0]; }
 %%
