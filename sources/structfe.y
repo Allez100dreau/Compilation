@@ -17,6 +17,7 @@ main() {
 %}
 
 %token IDENTIFIER CONSTANT SIZEOF
+%token SHIFT_R SHIFT_L
 %token PTR_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP
 %token EXTERN
@@ -64,8 +65,14 @@ unary_operator
         | '-'
         ;
 
-multiplicative_expression
+shift_expression
         : unary_expression
+        | shift_expression SHIFT_L unary_expression
+        | shift_expression SHIFT_R unary_expression
+        ;
+
+multiplicative_expression
+        : shift_expression
         | multiplicative_expression '*' unary_expression
         | multiplicative_expression '/' unary_expression
         ;

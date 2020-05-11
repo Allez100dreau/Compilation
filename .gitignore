@@ -1,2 +1,5 @@
 /compilateur
 /.idea/
+/structfe.tab.c
+/structfe.tab.h
+/lex.yy.c
