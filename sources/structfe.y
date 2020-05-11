@@ -58,6 +58,7 @@ unary_operator
         | '*'
         | '-'
         ;
+
 shift_expression
         : unary_expression
         | shift_expression SHIFT_L unary_expression
