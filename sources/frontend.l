@@ -35,6 +35,9 @@ IS                      (u|U|l|L)*
 
 \/\*(.|\n)*\*\/         { ECHO; /* ignore comments */ }
 
+"<<"                    { ECHO; return SHIFT_L; }
+">>"                    { ECHO; return SHIFT_R; }
+
 [ \n\t\v\f]             { ECHO; /* ignore whitespace */ }
 .                       { ECHO; return (int) yytext[0]; }
 %%
