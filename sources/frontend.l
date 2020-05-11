@@ -24,7 +24,7 @@ IS                      (u|U|l|L)*
 "while"                 { ECHO; return WHILE; }
 
 {L}({L}|{D})*           { ECHO; return IDENTIFIER; }
-{D}                     { ECHO; return CONSTANT; }
+{D}+                    { ECHO; return CONSTANT; }
 
 "&&"                    { ECHO; return AND_OP; }
 "||"                    { ECHO; return OR_OP; }
