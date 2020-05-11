@@ -23,6 +23,7 @@ main() {
 %token INT VOID
 %token STRUCT 
 %token IF ELSE WHILE FOR RETURN
+%token INC
 
 %start program
 %%
@@ -49,8 +50,13 @@ argument_expression_list
 unary_expression
         : postfix_expression
         | unary_operator unary_expression
-        | SIZEOF unary_expression
+        | SIZEOF sizeof_expression
+        | unary_expression INC
         ;
+        
+sizeof_expression
+        : unary_expression
+        | '(' type_specifier ')'
 
 unary_operator
         : '&'

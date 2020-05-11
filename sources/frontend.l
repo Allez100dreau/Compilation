@@ -32,6 +32,7 @@ IS                      (u|U|l|L)*
 ">="                    { ECHO; return GE_OP; }
 "=="                    { ECHO; return EQ_OP; }
 "!="                    { ECHO; return NE_OP; }
+"++"                    { ECHO; return INC; }
 
 \/\*(.|\n)*\*\/         { ECHO; /* ignore comments */ }
 
