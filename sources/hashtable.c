@@ -2,22 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define TABLE_SIZE 100
-
-// entrée dans la table
-typedef struct entry_t
-{
-    char *key;
-    char *value;
-    struct entry_t *next;
-} entry_t;
-
-// table de hachage
-typedef struct
-{
-    entry_t **entries;
-} hashtable_t;
+#include "hashtable.h"
 
 // fonction de hachage
 unsigned int hash(const char *key)

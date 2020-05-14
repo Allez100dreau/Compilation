@@ -1,7 +1,8 @@
 %{
 #include <stdio.h>
 #include <string.h>
- 
+#include "./sources/hashtable.h"
+
 void yyerror(const char *str) {
         fprintf(stderr,"error: %s\n",str);
 }
@@ -25,6 +26,12 @@ main() {
 %token STRUCT 
 %token IF ELSE WHILE FOR RETURN
 %token INC
+
+/*
+%union {
+        int number;
+}
+*/
 
 %start program
 %%
@@ -58,6 +65,7 @@ unary_expression
 sizeof_expression
         : unary_expression
         | '(' type_specifier ')'
+        ;
 
 unary_operator
         : '&'
@@ -72,19 +80,19 @@ shift_expression
         ;
 
 multiplicative_expression
-        : shift_expression
-        | multiplicative_expression '*' unary_expression
-        | multiplicative_expression '/' unary_expression
+        : shift_expression {$$=$1;}
+        | multiplicative_expression '*' unary_expression {$$=$1*$3;}
+        | multiplicative_expression '/' unary_expression {$$=$1/$3;}
         ;
 
 additive_expression
-        : multiplicative_expression
-        | additive_expression '+' multiplicative_expression
-        | additive_expression '-' multiplicative_expression
+        : multiplicative_expression {$$=$1;}
+        | additive_expression '+' multiplicative_expression {$$=$1+$3;}
+        | additive_expression '-' multiplicative_expression {$$=$1+$3;}
         ;
 
 relational_expression
-        : additive_expression
+        : additive_expression {$$=$1;}
         | relational_expression '<' additive_expression
         | relational_expression '>' additive_expression
         | relational_expression LE_OP additive_expression
@@ -92,24 +100,24 @@ relational_expression
         ;
 
 equality_expression
-        : relational_expression
+        : relational_expression {$$=$1;}
         | equality_expression EQ_OP relational_expression
         | equality_expression NE_OP relational_expression
         ;
 
 logical_and_expression
-        : equality_expression
+        : equality_expression {$$=$1;}
         | logical_and_expression AND_OP equality_expression
         ;
 
 logical_or_expression
-        : logical_and_expression
+        : logical_and_expression {$$=$1;}
         | logical_or_expression OR_OP logical_and_expression
         ;
 
 expression
-        : logical_or_expression
-        | unary_expression '=' expression
+        : logical_or_expression {$$ = $1; printf(" [Result : %d] ", $1);}
+        | unary_expression '=' expression {$$ = $3; printf(" [Result : %d] ", $3);}
         ;
 
 declaration
