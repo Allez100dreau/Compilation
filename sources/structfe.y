@@ -204,6 +204,16 @@ expression_statement
 
 selection_statement
         : IF '(' expression ')' statement else_statement
+/*        {
+        if ($$2) goto Lif1;
+        $$5
+	goto Lendifelse;
+
+	Lif1:
+	$$4
+
+	Lendifelse:
+        }*/
         ;
 
 else_statement
@@ -213,7 +223,23 @@ else_statement
 
 iteration_statement
         : WHILE '(' expression ')' statement
+/*        	{
+        	goto Ltest1;
+        	Lwhile1:
+        	$$4
+		Ltest1:
+		if ($$2) goto Lwhile1;
+        	}*/
         | FOR '(' expression_statement expression_statement expression ')' statement
+/*        	{
+        	$$2
+        	goto Ltest1;
+        	Lfor1:
+        	$$6
+        	$$4
+        	Ltest1:
+        	if ($$3) goto Lfor1;
+        	}*/
         ;
 
 jump_statement
