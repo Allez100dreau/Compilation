@@ -4,6 +4,7 @@
 #include "./sources/hashtable.h"
 
 hashtable_t *hashtable;
+FILE *output;
 
 char *newtmp(void) {
         char start[50] = "tmp_";
@@ -27,11 +28,7 @@ char *newtmp(void) {
 }
 
 void gencode(char *code) {
-        FILE *file;
-
-        file = fopen("./backend/test.c", "w");
-        fputs(code, file);
-        fclose(file);
+        fputs(code, output);
 }
 
 void yyerror(const char *str) {
@@ -43,9 +40,18 @@ int yywrap() {
 }
   
 main() {
-        hashtable = ht_create(); 
+        output = fopen("./backend/test.c", "w");
+
+	if(output == NULL) {
+		fprintf(stderr, "Impossible d'ouvrir le fichier d'output en écriture.\n");
+		exit(1);
+	}
+
+        hashtable = ht_create();
         yyparse(hashtable);
         ht_dump(hashtable);
+
+        fclose(output);
 }
 
 %}
@@ -157,7 +163,7 @@ logical_or_expression
 
 expression
         : logical_or_expression
-        | unary_expression '=' expression {printf("<-- On fait une affectation");}
+        | unary_expression '=' expression {printf(" <-- On fait une affectation");}
         ;
 
 declaration
@@ -244,17 +250,7 @@ expression_statement
 
 selection_statement
         : IF '(' expression ')' statement else_statement
-/*        {
-        if ($$1) goto Lif1;
-        $$4
-	goto Lendifelse;
-
-	Lif1:
-	$$3
-
-	Lendifelse:
-        }*/
-        ;
+	        {gencode("\nif ($1) goto Lif1;\n$4\ngoto Lendifelse;\nLif1:\n$3\nLendifelse:\n");};
 
 else_statement
         : %empty
@@ -263,24 +259,9 @@ else_statement
 
 iteration_statement
         : WHILE '(' expression ')' statement
-/*        	{
-        	goto Ltest1;
-        	Lwhile1:
-        	$$3
-		Ltest1:
-		if ($$1) goto Lwhile1;
-        	}*/
+        	{gencode("\ngoto Ltest1;\nLwhile1:\n$3\nLtest1:\nif ($1) goto Lwhile1;\n");};
         | FOR '(' expression_statement expression_statement expression ')' statement
-/*        	{
-        	$$1
-        	goto Ltest1;
-        	Lfor1:
-        	$$5
-        	$$3
-        	Ltest1:
-        	if ($$2) goto Lfor1;
-        	}*/
-        ;
+        	{gencode("\n$1\ngoto Ltest1;\nLfor1:\n$5\n$3\nLtest1:\nif ($2) goto Lfor1;\n");};
 
 jump_statement
         : RETURN ';' {printf("<-- On retourne");}
