@@ -230,12 +230,12 @@ expression_statement
 selection_statement
         : IF '(' expression ')' statement else_statement
 /*        {
-        if ($$2) goto Lif1;
-        $$5
+        if ($$1) goto Lif1;
+        $$4
 	goto Lendifelse;
 
 	Lif1:
-	$$4
+	$$3
 
 	Lendifelse:
         }*/
@@ -251,19 +251,19 @@ iteration_statement
 /*        	{
         	goto Ltest1;
         	Lwhile1:
-        	$$4
+        	$$3
 		Ltest1:
-		if ($$2) goto Lwhile1;
+		if ($$1) goto Lwhile1;
         	}*/
         | FOR '(' expression_statement expression_statement expression ')' statement
 /*        	{
-        	$$2
+        	$$1
         	goto Ltest1;
         	Lfor1:
-        	$$6
-        	$$4
+        	$$5
+        	$$3
         	Ltest1:
-        	if ($$3) goto Lfor1;
+        	if ($$2) goto Lfor1;
         	}*/
         ;
 
