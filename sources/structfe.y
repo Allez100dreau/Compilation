@@ -3,6 +3,8 @@
 #include <string.h>
 #include "./sources/hashtable.h"
 
+hashtable_t *hashtable;
+
 char *newtmp(void) {
         char start[50] = "tmp_";
         char i[10] = "1";
@@ -24,6 +26,14 @@ char *newtmp(void) {
         return tmp;
 }
 
+void gencode(char *code) {
+        FILE *file;
+
+        file = fopen("./backend/test.c", "w");
+        fputs(code, file);
+        fclose(file);
+}
+
 void yyerror(const char *str) {
         fprintf(stderr,"error: %s\n",str);
 }
@@ -33,10 +43,9 @@ int yywrap() {
 }
   
 main() {
-        hashtable_t *hashtable = ht_create();
-
-        yyparse();
-        newtmp();
+        hashtable = ht_create(); 
+        yyparse(hashtable);
+        ht_dump(hashtable);
 }
 
 %}
@@ -53,16 +62,18 @@ main() {
 %token IF ELSE WHILE FOR RETURN
 %token INC
 
+%type <string> struct_declaration
+
 %union {
         int number;
-        char *id;
+        char *string;
 }
 
 %start program
 %%
 
 primary_expression
-        : IDENTIFIER
+        : IDENTIFIER {ht_set(hashtable, $1, "");}
         | CONSTANT
         | '(' expression ')'
         ;
@@ -173,7 +184,7 @@ struct_declaration_list
         ;
 
 struct_declaration
-        : type_specifier declarator ';'
+        : type_specifier declarator ';' {printf("BONJOUR"); ht_set(hashtable, "name1", "alessandro"); ht_dump(hashtable);}
         ;
 
 declarator
