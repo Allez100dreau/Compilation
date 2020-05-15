@@ -57,12 +57,16 @@ main() {
 %token PTR_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP
 %token EXTERN
-%token INT VOID
-%token STRUCT 
+%token <string> INT VOID
+%token <string> STRUCT 
 %token IF ELSE WHILE FOR RETURN
 %token INC
 
-%type <string> struct_declaration
+%type <string> declaration_specifiers
+%type <string> direct_declarator
+%type <string> struct_specifier
+%type <string> type_specifier
+%type <string> declarator
 
 %union {
         int number;
@@ -73,7 +77,7 @@ main() {
 %%
 
 primary_expression
-        : IDENTIFIER {ht_set(hashtable, $1, "");}
+        : IDENTIFIER
         | CONSTANT
         | '(' expression ')'
         ;
@@ -81,7 +85,7 @@ primary_expression
 postfix_expression
         : primary_expression
         | postfix_expression '(' ')'
-        | postfix_expression '(' argument_expression_list ')'
+        | postfix_expression '(' argument_expression_list ')' {printf("<-- Appel de fonction avec arguments");}
         | postfix_expression '.' IDENTIFIER
         | postfix_expression PTR_OP IDENTIFIER
         ;
@@ -153,11 +157,11 @@ logical_or_expression
 
 expression
         : logical_or_expression
-        | unary_expression '=' expression
+        | unary_expression '=' expression {printf("<-- On fait une affectation");}
         ;
 
 declaration
-        : declaration_specifiers declarator ';'
+        : declaration_specifiers declarator ';' {printf(" <-- On fait une déclaration");}
         | struct_specifier ';'
         ;
 
@@ -184,7 +188,7 @@ struct_declaration_list
         ;
 
 struct_declaration
-        : type_specifier declarator ';' {printf("BONJOUR"); ht_set(hashtable, "name1", "alessandro"); ht_dump(hashtable);}
+        : type_specifier declarator ';'
         ;
 
 declarator
@@ -235,7 +239,7 @@ statement_list
 
 expression_statement
         : ';'
-        | expression ';'
+        | expression ';' {printf(" #Fin d'instruction#");}
         ;
 
 selection_statement
@@ -279,8 +283,8 @@ iteration_statement
         ;
 
 jump_statement
-        : RETURN ';'
-        | RETURN expression ';'
+        : RETURN ';' {printf("<-- On retourne");}
+        | RETURN expression ';' {printf("<-- On retourne une valeur");}
         ;
 
 program
@@ -294,7 +298,7 @@ external_declaration
         ;
 
 function_definition
-        : declaration_specifiers declarator compound_statement
+        : declaration_specifiers declarator {printf("<-- On commence la définition de la fonction %s", $2);} compound_statement {printf("<-- Fin du bloc");}
         ;
 
 %%
