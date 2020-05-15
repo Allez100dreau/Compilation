@@ -23,8 +23,8 @@ IS                      (u|U|l|L)*
 "void"                  { ECHO; return VOID; }
 "while"                 { ECHO; return WHILE; }
 
-{L}({L}|{D})*           { ECHO; return IDENTIFIER; }
-{D}+                    { ECHO; return CONSTANT; }
+{L}({L}|{D})*           { ECHO; yylval.id = strdup(yytext); return IDENTIFIER; }
+{D}+                    { ECHO; yylval.number = atoi(yytext); return CONSTANT; }
 
 "&&"                    { ECHO; return AND_OP; }
 "||"                    { ECHO; return OR_OP; }
