@@ -56,7 +56,7 @@ main() {
 %token SHIFT_R SHIFT_L
 %token PTR_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP
-%token EXTERN
+%token <string> EXTERN
 %token <string> INT VOID
 %token <string> STRUCT 
 %token IF ELSE WHILE FOR RETURN
@@ -161,7 +161,7 @@ expression
         ;
 
 declaration
-        : declaration_specifiers declarator ';' {printf(" <-- On fait une déclaration");}
+        : declaration_specifiers declarator ';' {printf("<-- On fait une déclaration"); gencode(printf("%s %s;",$1,$2))}
         | struct_specifier ';'
         ;
 
