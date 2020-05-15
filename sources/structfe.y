@@ -73,6 +73,9 @@ main() {
 %type <string> struct_specifier
 %type <string> type_specifier
 %type <string> declarator
+%type <string> declaration
+%type <string> expression
+%type <string> unary_expression
 
 %union {
         int number;
@@ -163,22 +166,22 @@ logical_or_expression
 
 expression
         : logical_or_expression
-        | unary_expression '=' expression {printf(" <-- On fait une affectation");}
+        | unary_expression '=' expression {printf("<-- On fait une affectation");}
         ;
 
 declaration
-        : declaration_specifiers declarator ';' {printf("<-- On fait une déclaration"); gencode(printf("%s %s;",$1,$2))}
+        : declaration_specifiers declarator ';' {printf("<-- On déclare %s de type %s", $2, $1);}
         | struct_specifier ';'
         ;
 
 declaration_specifiers
-        : EXTERN type_specifier
-        | type_specifier
+        : EXTERN type_specifier {$$=$2;}
+        | type_specifier {$$=$1;}
         ;
 
 type_specifier
         : VOID
-        | INT
+        | INT {$$=$1;}
         | struct_specifier
         ;
 
@@ -245,12 +248,13 @@ statement_list
 
 expression_statement
         : ';'
-        | expression ';' {printf(" #Fin d'instruction#");}
+        | expression ';'
         ;
 
 selection_statement
-        : IF '(' expression ')' statement else_statement
-	        {gencode("\nif ($1) goto Lif1;\n$4\ngoto Lendifelse;\nLif1:\n$3\nLendifelse:\n");};
+        : IF '(' expression ')' statement else_statement 
+                {gencode("\nif ($1) goto Lif1;\n$4\ngoto Lendifelse;\nLif1:\n$3\nLendifelse:\n");}
+        ;
 
 else_statement
         : %empty
@@ -259,9 +263,10 @@ else_statement
 
 iteration_statement
         : WHILE '(' expression ')' statement
-        	{gencode("\ngoto Ltest1;\nLwhile1:\n$3\nLtest1:\nif ($1) goto Lwhile1;\n");};
+        	{gencode("\ngoto Ltest1;\nLwhile1:\n$3\nLtest1:\nif ($1) goto Lwhile1;\n");}
         | FOR '(' expression_statement expression_statement expression ')' statement
-        	{gencode("\n$1\ngoto Ltest1;\nLfor1:\n$5\n$3\nLtest1:\nif ($2) goto Lfor1;\n");};
+        	{gencode("\n$1\ngoto Ltest1;\nLfor1:\n$5\n$3\nLtest1:\nif ($2) goto Lfor1;\n");}
+        ;
 
 jump_statement
         : RETURN ';' {printf("<-- On retourne");}
@@ -279,7 +284,7 @@ external_declaration
         ;
 
 function_definition
-        : declaration_specifiers declarator {printf("<-- On commence la définition de la fonction %s", $2);} compound_statement {printf("<-- Fin du bloc");}
+        : declaration_specifiers declarator {printf("<-- Début définition de la fonction %s qui renvoie un %s", $2, $1);} compound_statement {printf("<-- Fin du bloc");}
         ;
 
 %%
