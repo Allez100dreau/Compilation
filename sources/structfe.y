@@ -166,11 +166,21 @@ logical_or_expression
 
 expression
         : logical_or_expression
-        | unary_expression '=' expression {printf("<-- On fait une affectation");}
+        | unary_expression '=' expression
+        {
+        char str[10]; 
+        sprintf(str, "%d", $3); 
+        printf("<-- On affecte %s à %s", str, $1);
+        ht_set(hashtable, $1, str);
+        }
         ;
 
 declaration
-        : declaration_specifiers declarator ';' {printf("<-- On déclare %s de type %s", $2, $1);}
+        : declaration_specifiers declarator ';' 
+        {
+        printf("<-- On déclare %s de type %s", $2, $1);
+        ht_set(hashtable, $2, $1);
+        }
         | struct_specifier ';'
         ;
 
@@ -270,7 +280,7 @@ iteration_statement
 
 jump_statement
         : RETURN ';' {printf("<-- On retourne");}
-        | RETURN expression ';' {printf("<-- On retourne une valeur");}
+        | RETURN expression ';' {char str[10]; sprintf(str, "%d", $2); printf("<-- On retourne %s", str);}
         ;
 
 program
