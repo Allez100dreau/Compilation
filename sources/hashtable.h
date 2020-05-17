@@ -1,4 +1,4 @@
-#define TABLE_SIZE 100
+#define TABLE_SIZE 1000
 
 // entrée dans la table
 typedef struct entry_t

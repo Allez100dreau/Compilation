@@ -180,6 +180,9 @@ declaration
         {
         printf("<-- On déclare %s de type %s", $2, $1);
         ht_set(hashtable, $2, $1);
+        char code[50];
+        sprintf(code, "%s %s;\n", $1, $2);
+        gencode(code);
         }
         | struct_specifier ';'
         ;
