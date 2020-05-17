@@ -110,7 +110,10 @@ primary_expression
 
 postfix_expression
         : primary_expression
-        | postfix_expression '(' ')'
+        | postfix_expression '(' ')' {
+        	printf("<-- Appel de fonction sans argument");
+        	$$ = strcat($1, "()");
+        	}
         | postfix_expression '(' argument_expression_list ')' {printf("<-- Appel de fonction avec arguments");}
         | postfix_expression '.' IDENTIFIER
         | postfix_expression PTR_OP IDENTIFIER
@@ -173,25 +176,44 @@ equality_expression
 
 logical_and_expression
         : equality_expression
-        | logical_and_expression AND_OP equality_expression
+        | logical_and_expression AND_OP equality_expression {
+/*
+		PSEUDO CODE POUR INDIQUER COMMENT FAIRE
+        	if (1er){
+        		if (2nd){
+        			<true>
+        		}else {false}
+		}else{false}
+*/
+        	}
+
         ;
 
 logical_or_expression
         : logical_and_expression
-        | logical_or_expression OR_OP logical_and_expression
+        | logical_or_expression OR_OP logical_and_expression {
+/*
+		PSEUDO CODE POUR INDIQUER COMMENT FAIRE
+        	if !(1er) {goto then}
+        	if !(2nd) {goto then}
+        	<true>
+        	then:
+        	<else>
+*/
+        	}
         ;
 
 expression
         : logical_or_expression
         | unary_expression '=' expression {
-        char str[10];
-        sprintf(str, "%d", $3);
-        printf("<-- On affecte %s à %s", str, $1);
-        ht_set(hashtable, $1, str);
-        char *affect = malloc(sizeof(char) * (strlen($1) + strlen(str) + 2));
-        sprintf(affect, "%s = %s", $1, str);
-        $$ = affect;
-        }
+		char str[10];
+		sprintf(str, "%d", $3);
+		printf("<-- On affecte %s à %s", str, $1);
+		ht_set(hashtable, $1, str);
+		char *affect = malloc(sizeof(char) * (strlen($1) + strlen(str) + 2));
+		sprintf(affect, "%s = %s", $1, str);
+		$$ = affect;
+		}
         ;
 
 declaration
@@ -200,7 +222,7 @@ declaration
                 char *code = malloc(sizeof(char) * 50);
                 sprintf(code,"%s %s;", $1, $2);
                 $$ = code;
-        }
+        	}
         | struct_specifier ';'
         ;
 
@@ -209,7 +231,7 @@ declaration_specifiers
                 char *code = malloc(sizeof(char) * (strlen($1) + strlen($2) + 1));
                 sprintf(code,"%s %s",$1, $2);
                 $$ = code;
-        }
+        	}
         | type_specifier
         ;
 
@@ -235,7 +257,7 @@ struct_declaration
         ;
 
 declarator
-        : '*' direct_declarator
+        : '*' direct_declarator {$$ = strcat("*", $2);}
         | direct_declarator
         ;
 
@@ -264,7 +286,7 @@ parameter_declaration
                 char *code = malloc(sizeof(char) * 50);
                 sprintf(code, "%s %s", $1, $2);
                 $$ = code;
-        }
+        	}
         ;
 
 statement
@@ -316,14 +338,18 @@ expression_statement
 
 selection_statement
         : IF '(' expression ')' statement else_statement {
-		char codeStr[500];
+		char codeStr[1000];
 
 		char Labelif[50];
 		char Labelendif[50];
 		sprintf(Labelif, "Label%s%i", "If", incLabel++);
 		sprintf(Labelendif, "Label%s%i", "Endifelse", incLabel++);
 
-		sprintf(codeStr, "\nif (%s) goto %s;\n%s\ngoto %s;\n%s:\n%s\n%s:\n", "$1", Labelif, "$4", Labelendif, Labelif, "$3" , Labelendif);
+		// On génère le code pour trouver la valeur "valeurCdt" de la condition avant le if, puis on la récupère et on la met dans le if.
+		// Rendre unique le nom de la valeur ?
+		//gencode(codeCdt)
+
+		sprintf(codeStr, "\nif (%s) goto %s;\n%s\ngoto %s;\n%s:\n%s\n%s:\n", "valeurCdt" , Labelif, "bloc_else($6)", Labelendif, Labelif, "bloc_then($5)" , Labelendif);
 
 		gencode(codeStr);
                 }
@@ -336,26 +362,28 @@ else_statement
 
 iteration_statement
         : WHILE '(' expression ')' statement {
-		char codeStr[500];
+		char codeStr[1000];
 
 		char LabelWhile[50];
 		char LabelWhileCdt[50];
 		sprintf(LabelWhile, "Label%s%i", "While", incLabel++);
 		sprintf(LabelWhileCdt, "Label%s%i", "WhileCdt", incLabel++);
 
-		sprintf(codeStr, "\ngoto %s;\n%s:\n$3\n%s:\nif (%s) goto %s;\n", LabelWhileCdt, LabelWhile, LabelWhileCdt, "$1" , LabelWhile);
+		//gencode(codeCdt)
+		sprintf(codeStr, "\ngoto %s;\n%s:\n%s\n%s:\nif (%s) goto %s;\n", LabelWhileCdt, LabelWhile, "Bloc_actions_while($5)", LabelWhileCdt, "Conditon_while($3)", LabelWhile);
 
         	gencode(codeStr);
         	}
         | FOR '(' expression_statement expression_statement expression ')' statement {
-		char codeStr[500];
+		char codeStr[1000];
 
 		char LabelFor[50];
 		char LabelForCdt[50];
 		sprintf(LabelFor, "Label%s%i", "For", incLabel++);
 		sprintf(LabelForCdt, "Label%s%i", "ForCdt", incLabel++);
 
-		sprintf(codeStr, "\n%s\ngoto %s;\n%s:\n%s\n%s\n%s:\nif (%s) goto %s;\n", $3, LabelForCdt, LabelFor ,"$5", "$3", LabelForCdt, "$2", LabelFor);
+		//gencode(codeCdt);
+		sprintf(codeStr, "\n%s\ngoto %s;\n%s:\n%s\n%s\n%s:\nif (%s) goto %s;\n", "init_variable($3)", LabelForCdt, LabelFor ,"Bloc_actions_for($7)", "action_fin_de_boucle($5)", LabelForCdt, "condition_continuation_for($4)", LabelFor);
 
         	gencode(codeStr);
         	}
