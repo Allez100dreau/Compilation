@@ -76,8 +76,12 @@ main() {
 %type <string> type_specifier
 %type <string> declarator
 %type <string> declaration
+%type <string> declaration_list
 %type <string> expression
 %type <string> unary_expression
+%type <string> external_declaration
+%type <string> parameter_list
+%type <string> parameter_declaration
 
 %union {
         int number;
@@ -178,23 +182,26 @@ expression
 
 declaration
         : declaration_specifiers declarator ';' {
-        printf("<-- On déclare %s de type %s", $2, $1);
-        ht_set(hashtable, $2, $1);
-        char code[50];
-        sprintf(code, "%s %s;\n", $1, $2);
-        gencode(code);
+                ht_set(hashtable, $2, $1);
+                char *code = malloc(sizeof(char) * 50);
+                sprintf(code,"%s %s;", $1, $2);
+                $$ = code;
         }
         | struct_specifier ';'
         ;
 
 declaration_specifiers
-        : EXTERN type_specifier {$$=$2;}
-        | type_specifier {$$=$1;}
+        : EXTERN type_specifier {
+                char *code = malloc(sizeof(char) * 50);
+                sprintf(code,"%s %s",$1, $2);
+                $$ = code;
+        }
+        | type_specifier
         ;
 
 type_specifier
         : VOID
-        | INT {$$=$1;}
+        | INT
         | struct_specifier
         ;
 
@@ -221,7 +228,11 @@ declarator
 direct_declarator
         : IDENTIFIER
         | '(' declarator ')'
-        | direct_declarator '(' parameter_list ')'
+        | direct_declarator '(' parameter_list ')' {
+                char *code = malloc(sizeof(char) * 50);
+                sprintf(code,"%s(%s)", $1, $3);
+                $$ = code;
+                }
         | direct_declarator '(' ')'
         ;
 
@@ -231,7 +242,11 @@ parameter_list
         ;
 
 parameter_declaration
-        : declaration_specifiers declarator
+        : declaration_specifiers declarator {
+                char *code = malloc(sizeof(char) * 50);
+                sprintf(code, "%s %s", $1, $2);
+                $$ = code;
+        }
         ;
 
 statement
@@ -246,12 +261,12 @@ compound_statement
         : '{' '}'
         | '{' statement_list '}'
         | '{' declaration_list '}'
-        | '{' declaration_list statement_list '}'
+        | '{' declaration_list statement_list '}' 
         ;
 
 declaration_list
-        : declaration
-        | declaration_list declaration
+        : declaration {printf("<-- On fait une déclaration dans un bloc");}
+        | declaration_list declaration {printf("<-- On fait une déclaration dans un bloc");}
         ;
 
 statement_list
@@ -319,7 +334,12 @@ jump_statement
         ;
 
 program
-        : external_declaration
+        : external_declaration {
+                char code[50];
+                sprintf(code, "%s", $1);
+                printf("\n%s", $1);
+                gencode(code);
+        }
         | program external_declaration
         ;
 

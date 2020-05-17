@@ -13,14 +13,14 @@ IS                      (u|U|l|L)*
 
 %%
 "else"                  { ECHO; return ELSE; }
-"extern"                { ECHO; return EXTERN; }
+"extern"                { ECHO; yylval.string = strdup(yytext); return EXTERN; }
 "for"                   { ECHO; return FOR; }
 "if"                    { ECHO; return IF; }
 "int"                   { ECHO; yylval.string = strdup(yytext); return INT; }
 "return"                { ECHO; return RETURN; }
 "sizeof"                { ECHO; return SIZEOF; }
 "struct"                { ECHO; return STRUCT; }
-"void"                  { ECHO; return VOID; }
+"void"                  { ECHO; yylval.string = strdup(yytext); return VOID; }
 "while"                 { ECHO; return WHILE; }
 
 {L}({L}|{D})*           { ECHO; yylval.string = strdup(yytext); return IDENTIFIER; }
