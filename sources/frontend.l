@@ -28,7 +28,7 @@ void dupl(char *text) {
 "while"                 { ECHO; dupl(yytext); return WHILE; }
 
 {L}({L}|{D})*           { ECHO; dupl(yytext); return IDENTIFIER; }
-{D}+                    { ECHO; yylval.number = atoi(yytext); return CONSTANT; }
+-?{D}+                  { ECHO; yylval.number = atoi(yytext); return CONSTANT; }
 
 "&&"                    { ECHO; return AND_OP; }
 "||"                    { ECHO; return OR_OP; }
