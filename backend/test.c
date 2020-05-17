@@ -1,20 +1,20 @@
 
-goto Ltest1;
-Lwhile1:
+goto LabelWhileCdt1;
+LabelWhile0:
 $3
-Ltest1:
-if ($1) goto Lwhile1;
+LabelWhileCdt1:
+if ($1) goto LabelWhile0;
 
 $1
-goto Ltest1;
-Lfor1:
+goto LabelForCdt3;
+LabelFor2:
 $5
 $3
-Ltest1:
-if ($2) goto Lfor1;
+LabelForCdt3:
+if ($2) goto LabelFor2;
 
-goto Ltest1;
-Lwhile1:
+goto LabelWhileCdt5;
+LabelWhile4:
 $3
-Ltest1:
-if ($1) goto Lwhile1;
+LabelWhileCdt5:
+if ($1) goto LabelWhile4;

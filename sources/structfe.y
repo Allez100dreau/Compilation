@@ -5,6 +5,7 @@
 
 hashtable_t *hashtable;
 FILE *output;
+int incLabel;
 
 char *newtmp(void) {
         char start[50] = "tmp_";
@@ -47,6 +48,7 @@ main() {
 		exit(1);
 	}
 
+	incLabel = 0;
         hashtable = ht_create();
         yyparse(hashtable);
         ht_dump(hashtable);
@@ -166,18 +168,16 @@ logical_or_expression
 
 expression
         : logical_or_expression
-        | unary_expression '=' expression
-        {
-        char str[10]; 
-        sprintf(str, "%d", $3); 
+        | unary_expression '=' expression {
+        char str[10];
+        sprintf(str, "%d", $3);
         printf("<-- On affecte %s à %s", str, $1);
         ht_set(hashtable, $1, str);
         }
         ;
 
 declaration
-        : declaration_specifiers declarator ';' 
-        {
+        : declaration_specifiers declarator ';' {
         printf("<-- On déclare %s de type %s", $2, $1);
         ht_set(hashtable, $2, $1);
         }
@@ -262,8 +262,18 @@ expression_statement
         ;
 
 selection_statement
-        : IF '(' expression ')' statement else_statement 
-                {gencode("\nif ($1) goto Lif1;\n$4\ngoto Lendifelse;\nLif1:\n$3\nLendifelse:\n");}
+        : IF '(' expression ')' statement else_statement {
+		char codeStr[500];
+
+		char Labelif[50];
+		char Labelendif[50];
+		sprintf(Labelif, "Label%s%i", "If", incLabel++);
+		sprintf(Labelendif, "Label%s%i", "Endifelse", incLabel++);
+
+		sprintf(codeStr, "\nif (%s) goto %s;\n%s\ngoto %s;\n%s:\n%s\n%s:\n", "$1", Labelif, "$4", Labelendif, Labelif, "$3" , Labelendif);
+
+		gencode(codeStr);
+                }
         ;
 
 else_statement
@@ -272,15 +282,37 @@ else_statement
         ;
 
 iteration_statement
-        : WHILE '(' expression ')' statement
-        	{gencode("\ngoto Ltest1;\nLwhile1:\n$3\nLtest1:\nif ($1) goto Lwhile1;\n");}
-        | FOR '(' expression_statement expression_statement expression ')' statement
-        	{gencode("\n$1\ngoto Ltest1;\nLfor1:\n$5\n$3\nLtest1:\nif ($2) goto Lfor1;\n");}
+        : WHILE '(' expression ')' statement {
+		char codeStr[500];
+
+		char LabelWhile[50];
+		char LabelWhileCdt[50];
+		sprintf(LabelWhile, "Label%s%i", "While", incLabel++);
+		sprintf(LabelWhileCdt, "Label%s%i", "WhileCdt", incLabel++);
+
+		sprintf(codeStr, "\ngoto %s;\n%s:\n$3\n%s:\nif (%s) goto %s;\n", LabelWhileCdt, LabelWhile, LabelWhileCdt, "$1" , LabelWhile);
+
+        	gencode(codeStr);
+        	}
+        | FOR '(' expression_statement expression_statement expression ')' statement {
+		char codeStr[500];
+
+		char LabelFor[50];
+		char LabelForCdt[50];
+		sprintf(LabelFor, "Label%s%i", "For", incLabel++);
+		sprintf(LabelForCdt, "Label%s%i", "ForCdt", incLabel++);
+
+		sprintf(codeStr, "\n%s\ngoto %s;\n%s:\n%s\n%s\n%s:\nif (%s) goto %s;\n", "$1", LabelForCdt, LabelFor ,"$5", "$3", LabelForCdt, "$2", LabelFor);
+
+        	gencode(codeStr);
+        	}
         ;
 
 jump_statement
         : RETURN ';' {printf("<-- On retourne");}
-        | RETURN expression ';' {char str[10]; sprintf(str, "%d", $2); printf("<-- On retourne %s", str);}
+        | RETURN expression ';' {
+        	char str[10]; sprintf(str, "%d", $2); printf("<-- On retourne %s", str);
+        	}
         ;
 
 program
