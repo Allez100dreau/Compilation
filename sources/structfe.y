@@ -82,11 +82,15 @@ main() {
 %type <string> external_declaration
 %type <string> parameter_list
 %type <string> parameter_declaration
+%type <string> expression_statement
+%type <string> primary_expression
 
 %union {
         int number;
         char *string;
 }
+
+%left '+' '-'
 
 %start program
 %%
@@ -94,6 +98,7 @@ main() {
 primary_expression
         : IDENTIFIER
         | CONSTANT
+        | '-' CONSTANT {$$ = -$2;}
         | '(' expression ')'
         ;
 
@@ -192,7 +197,7 @@ declaration
 
 declaration_specifiers
         : EXTERN type_specifier {
-                char *code = malloc(sizeof(char) * 50);
+                char *code = malloc(sizeof(char) * (strlen($1) + strlen($2) + 1));
                 sprintf(code,"%s %s",$1, $2);
                 $$ = code;
         }
@@ -320,7 +325,7 @@ iteration_statement
 		sprintf(LabelFor, "Label%s%i", "For", incLabel++);
 		sprintf(LabelForCdt, "Label%s%i", "ForCdt", incLabel++);
 
-		sprintf(codeStr, "\n%s\ngoto %s;\n%s:\n%s\n%s\n%s:\nif (%s) goto %s;\n", "$1", LabelForCdt, LabelFor ,"$5", "$3", LabelForCdt, "$2", LabelFor);
+		sprintf(codeStr, "\n%s\ngoto %s;\n%s:\n%s\n%s\n%s:\nif (%s) goto %s;\n", $3, LabelForCdt, LabelFor ,"$5", "$3", LabelForCdt, "$2", LabelFor);
 
         	gencode(codeStr);
         	}
@@ -337,7 +342,6 @@ program
         : external_declaration {
                 char code[50];
                 sprintf(code, "%s", $1);
-                printf("\n%s", $1);
                 gencode(code);
         }
         | program external_declaration
