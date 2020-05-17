@@ -84,6 +84,11 @@ main() {
 %type <string> parameter_declaration
 %type <string> expression_statement
 %type <string> primary_expression
+%type <string> compound_statement
+%type <string> function_definition
+%type <string> program
+%type <string> statement_list
+%type <string> statement
 
 %union {
         int number;
@@ -238,7 +243,11 @@ direct_declarator
                 sprintf(code,"%s(%s)", $1, $3);
                 $$ = code;
                 }
-        | direct_declarator '(' ')'
+        | direct_declarator '(' ')' {
+                char *vide = malloc(sizeof(int) * (strlen($1) + 3));
+                sprintf(vide, "%s()", $1);
+                $$ = vide;
+        }
         ;
 
 parameter_list
@@ -266,17 +275,30 @@ compound_statement
         : '{' '}'
         | '{' statement_list '}'
         | '{' declaration_list '}'
-        | '{' declaration_list statement_list '}' 
+        | '{' declaration_list statement_list '}' {
+                char *cmpstat = malloc(sizeof(char) * (strlen($2) + strlen($3) + 3));
+                sprintf(cmpstat, "{\n\t%s\n\t%s\n}",$2, $3);
+                $$ = cmpstat;
+        }
         ;
 
 declaration_list
         : declaration {printf("<-- On fait une déclaration dans un bloc");}
-        | declaration_list declaration {printf("<-- On fait une déclaration dans un bloc");}
+        | declaration_list declaration {
+                printf("<-- On fait une déclaration dans un bloc");
+                char *decl = malloc(sizeof(int) * (strlen($1) + strlen($2)));
+                sprintf(decl, "%s\n\t%s", $1, $2);
+                $$ = decl;
+                }
         ;
 
 statement_list
         : statement
-        | statement_list statement
+        | statement_list statement {
+                char *instr = malloc(sizeof(int) * (strlen($1) + strlen($2)));
+                sprintf(instr, "%s\n\t%s", $1, $2);
+                $$ = instr;
+                }
         ;
 
 expression_statement
@@ -339,12 +361,12 @@ jump_statement
         ;
 
 program
-        : external_declaration {
-                char code[50];
-                sprintf(code, "%s", $1);
-                gencode(code);
+        : external_declaration
+        | program external_declaration {
+                char *prog = malloc(sizeof(char) * (strlen($1) + strlen($2) + 1));
+                sprintf(prog, "%s\n\n%s", $1, $2);
+                gencode(prog);
         }
-        | program external_declaration
         ;
 
 external_declaration
@@ -353,7 +375,12 @@ external_declaration
         ;
 
 function_definition
-        : declaration_specifiers declarator {printf("<-- Début définition de la fonction %s qui renvoie un %s", $2, $1);} compound_statement {printf("<-- Fin du bloc");}
+        : declaration_specifiers declarator {printf("<-- Début définition de la fonction %s qui renvoie un %s", $2, $1);} compound_statement {
+                printf("<-- Fin du bloc\n");
+                char *function = malloc(sizeof(int) * (strlen($1) + strlen($2) + strlen($4) + 1));
+                sprintf(function, "%s %s %s", $1, $2, $4);
+                $$ = function;
+                }
         ;
 
 %%
