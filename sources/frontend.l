@@ -9,21 +9,25 @@ IS                      (u|U|l|L)*
 #include <stdio.h>
 #include "structfe.tab.h"
 
+void dupl(char *text) {
+    yylval.string = strdup(yytext);
+}
+
 %}
 
 %%
-"else"                  { ECHO; return ELSE; }
-"extern"                { ECHO; yylval.string = strdup(yytext); return EXTERN; }
-"for"                   { ECHO; return FOR; }
-"if"                    { ECHO; return IF; }
-"int"                   { ECHO; yylval.string = strdup(yytext); return INT; }
-"return"                { ECHO; return RETURN; }
-"sizeof"                { ECHO; return SIZEOF; }
-"struct"                { ECHO; return STRUCT; }
-"void"                  { ECHO; yylval.string = strdup(yytext); return VOID; }
-"while"                 { ECHO; return WHILE; }
+"else"                  { ECHO; dupl(yytext); return ELSE; }
+"extern"                { ECHO; dupl(yytext); return EXTERN; }
+"for"                   { ECHO; dupl(yytext); return FOR; }
+"if"                    { ECHO; dupl(yytext); return IF; }
+"int"                   { ECHO; dupl(yytext); return INT; }
+"return"                { ECHO; dupl(yytext); return RETURN; }
+"sizeof"                { ECHO; dupl(yytext); return SIZEOF; }
+"struct"                { ECHO; dupl(yytext); return STRUCT; }
+"void"                  { ECHO; dupl(yytext); return VOID; }
+"while"                 { ECHO; dupl(yytext); return WHILE; }
 
-{L}({L}|{D})*           { ECHO; yylval.string = strdup(yytext); return IDENTIFIER; }
+{L}({L}|{D})*           { ECHO; dupl(yytext); return IDENTIFIER; }
 {D}+                    { ECHO; yylval.number = atoi(yytext); return CONSTANT; }
 
 "&&"                    { ECHO; return AND_OP; }
