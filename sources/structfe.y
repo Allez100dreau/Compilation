@@ -67,7 +67,7 @@ main() {
 %token <string> EXTERN
 %token <string> INT VOID
 %token <string> STRUCT 
-%token IF ELSE WHILE FOR RETURN
+%token <string> IF ELSE WHILE FOR RETURN
 %token INC
 
 %type <string> declaration_specifiers
@@ -89,6 +89,7 @@ main() {
 %type <string> program
 %type <string> statement_list
 %type <string> statement
+%type <string> jump_statement
 
 %union {
         int number;
@@ -187,6 +188,9 @@ expression
         sprintf(str, "%d", $3);
         printf("<-- On affecte %s à %s", str, $1);
         ht_set(hashtable, $1, str);
+        char *affect = malloc(sizeof(char) * (strlen($1) + strlen(str) + 2));
+        sprintf(affect, "%s = %s", $1, str);
+        $$ = affect;
         }
         ;
 
@@ -303,7 +307,11 @@ statement_list
 
 expression_statement
         : ';'
-        | expression ';'
+        | expression ';' {
+                char *expr = malloc(sizeof(char) * (strlen($1) + 1));
+                sprintf(expr, "%s;", $1);
+                $$ = expr;
+        }
         ;
 
 selection_statement
@@ -356,7 +364,11 @@ iteration_statement
 jump_statement
         : RETURN ';' {printf("<-- On retourne");}
         | RETURN expression ';' {
-        	char str[10]; sprintf(str, "%d", $2); printf("<-- On retourne %s", str);
+        	char str[10]; sprintf(str, "%d", $2);
+                printf("<-- On retourne %s", str);
+                char *ret = malloc(sizeof(char) * (strlen($1) + strlen(str) + 1));
+                sprintf(ret, "%s %s;", $1, str);
+                $$ = ret;
         	}
         ;
 
