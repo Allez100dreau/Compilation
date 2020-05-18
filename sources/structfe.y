@@ -114,7 +114,12 @@ primary_expression
         : IDENTIFIER
         | CONSTANT
         | '-' CONSTANT {$$ = -$2;}
-        | '(' expression ')'
+        | '(' expression ')' {
+                printf("<-- Appel de fonction avec arguments");
+		char *expr = malloc(sizeof(char) * (strlen($1) + 3));
+                sprintf(expr, "(%s)", $1);
+                $$ = expr;
+        }
         ;
 
 postfix_expression
