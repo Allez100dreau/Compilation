@@ -62,7 +62,7 @@ main() {
 
 %token <number> CONSTANT
 %token <string> IDENTIFIER
-%token SIZEOF
+%token <string> SIZEOF
 %token SHIFT_R SHIFT_L
 %token PTR_OP LE_OP GE_OP EQ_OP NE_OP
 %token AND_OP OR_OP
@@ -71,7 +71,7 @@ main() {
 %token <string> STRUCT 
 %token <string> IF ELSE WHILE FOR RETURN
 %token INC
-%token <string> '*'
+%token <string> '*' '-' '&'
 
 %type <string> declaration_specifiers
 %type <string> direct_declarator
@@ -99,6 +99,7 @@ main() {
 %type <string> selection_statement
 %type <string> iteration_statement
 %type <string> else_statement
+%type <string> sizeof_expression
 
 %union {
         int number;
@@ -116,10 +117,10 @@ primary_expression
         | '-' CONSTANT {$$ = -$2;}
         | '(' expression ')' {
                 printf("<-- Appel de fonction avec arguments");
-		char *expr = malloc(sizeof(char) * (strlen($1) + 3));
-                sprintf(expr, "(%s)", $1);
+		char *expr = malloc(sizeof(char) * (strlen($2) + 3));
+                sprintf(expr, "(%s)", $2);
                 $$ = expr;
-        }
+        	}
         ;
 
 postfix_expression
@@ -138,8 +139,20 @@ postfix_expression
                 sprintf(funcall, "%s(%s)", $1, $3);
                 $$ = funcall;
                 }
-        | postfix_expression '.' IDENTIFIER
+        | postfix_expression '.' IDENTIFIER /*{
+
+
+        		/!\	ROUTINE INUTILE ?!!!	/!\
+
+
+		printf("<-- Acces a l'identifier d'une expression.");
+		char *exprID = malloc(sizeof(char) * (strlen($1) + strlen($3) + 2));
+	   	sprintf(exprID, "%s.%s", $1, $3);
+	 	$$ = exprID;
+	   	}*/
         | postfix_expression PTR_OP IDENTIFIER
+
+        		// /!\	ROUTINE INUTILE ?!!!	/!\
         ;
 
 argument_expression_list
@@ -158,19 +171,31 @@ unary_expression
                 sprintf(unexpr, "%s%s", $1, $2);
                 $$ = unexpr;
         }
-        | SIZEOF sizeof_expression
-        | unary_expression INC
+        | SIZEOF sizeof_expression{
+		char *sizeOf = malloc(sizeof(char) * (strlen($1) + strlen($2) + 1));
+		sprintf(sizeOf, "%s%s", $1, $2);
+		$$ = sizeOf;
+        	}
+        | unary_expression INC{
+		char *incrementor = malloc(sizeof(char) * (strlen($1) + 3));
+		sprintf(incrementor, "%s++", $1);
+		$$ = incrementor;
+        	}
         ;
         
 sizeof_expression
         : unary_expression
-        | '(' type_specifier ')'
+        | '(' type_specifier ')' {
+		char *sizeOfType = malloc(sizeof(char) * (strlen($2) + 3));
+		sprintf(sizeOfType, "(%s)", $2);
+		$$ = sizeOfType;
+		}
         ;
 
 unary_operator
-        : '&'
+        : '&' {printf("ESPERLUETTE : %s", $1);}
         | '*' {printf("ASTERISQUE : %s", $1);}
-        | '-'
+        | '-' {printf("NUMBER NEG : %s", $1);}
         ;
 
 shift_expression
