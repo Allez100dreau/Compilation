@@ -69,6 +69,7 @@ main() {
 %token <string> STRUCT 
 %token <string> IF ELSE WHILE FOR RETURN
 %token INC
+%token <string> '*'
 
 %type <string> declaration_specifiers
 %type <string> direct_declarator
@@ -90,6 +91,9 @@ main() {
 %type <string> statement_list
 %type <string> statement
 %type <string> jump_statement
+%type <string> postfix_expression
+%type <string> argument_expression_list
+%type <string> unary_operator
 
 %union {
         int number;
@@ -114,7 +118,12 @@ postfix_expression
         	printf("<-- Appel de fonction sans argument");
         	//$$ = strcat($1, "()");
         	}
-        | postfix_expression '(' argument_expression_list ')' {printf("<-- Appel de fonction avec arguments");}
+        | postfix_expression '(' argument_expression_list ')' {
+                printf("<-- Appel de fonction avec arguments");
+                //char *funcall = malloc(sizeof(char) * (strlen($1) + 3));
+                //sprintf(call, "%s(%s)", $1, $3);
+                //$$ = call;
+                }
         | postfix_expression '.' IDENTIFIER
         | postfix_expression PTR_OP IDENTIFIER
         ;
@@ -126,7 +135,11 @@ argument_expression_list
 
 unary_expression
         : postfix_expression
-        | unary_operator unary_expression
+        | unary_operator unary_expression {
+                char *unexpr = malloc(sizeof(char) * (strlen($1) + strlen($2) + 1));
+                sprintf(unexpr, "%s%s", $1, $2);
+                $$ = unexpr;
+        }
         | SIZEOF sizeof_expression
         | unary_expression INC
         ;
@@ -138,7 +151,7 @@ sizeof_expression
 
 unary_operator
         : '&'
-        | '*'
+        | '*' {printf("ASTERISQUE : %s", $1);}
         | '-'
         ;
 
@@ -219,7 +232,7 @@ expression
 declaration
         : declaration_specifiers declarator ';' {
                 ht_set(hashtable, $2, $1);
-                char *code = malloc(sizeof(char) * 50);
+                char *code = malloc(sizeof(char) * (strlen($1) + strlen($2) + 2));
                 sprintf(code,"%s %s;", $1, $2);
                 $$ = code;
         	}
@@ -257,7 +270,7 @@ struct_declaration
         ;
 
 declarator
-        : '*' direct_declarator {$$ = strcat("*", $2);}
+        : '*' direct_declarator
         | direct_declarator
         ;
 
@@ -362,7 +375,7 @@ else_statement
 
 iteration_statement
         : WHILE '(' expression ')' statement {
-		char codeStr[1000];
+		/*char codeStr[1000];
 
 		char LabelWhile[50];
 		char LabelWhileCdt[50];
@@ -373,9 +386,9 @@ iteration_statement
 		sprintf(codeStr, "\ngoto %s;\n%s:\n%s\n%s:\nif (%s) goto %s;\n", LabelWhileCdt, LabelWhile, "Bloc_actions_while($5)", LabelWhileCdt, "Conditon_while($3)", LabelWhile);
 
         	gencode(codeStr);
-        	}
+        	*/}
         | FOR '(' expression_statement expression_statement expression ')' statement {
-		char codeStr[1000];
+		/*char codeStr[1000];
 
 		char LabelFor[50];
 		char LabelForCdt[50];
@@ -386,18 +399,18 @@ iteration_statement
 		sprintf(codeStr, "\n%s\ngoto %s;\n%s:\n%s\n%s\n%s:\nif (%s) goto %s;\n", "init_variable($3)", LabelForCdt, LabelFor ,"Bloc_actions_for($7)", "action_fin_de_boucle($5)", LabelForCdt, "condition_continuation_for($4)", LabelFor);
 
         	gencode(codeStr);
-        	}
+        	*/}
         ;
 
 jump_statement
         : RETURN ';' {printf("<-- On retourne");}
         | RETURN expression ';' {
-        	char str[10]; sprintf(str, "%d", $2);
+        	/*char str[10]; sprintf(str, "%d", $2);
                 printf("<-- On retourne %s", str);
                 char *ret = malloc(sizeof(char) * (strlen($1) + strlen(str) + 1));
                 sprintf(ret, "%s %s;", $1, str);
                 $$ = ret;
-        	}
+        	*/}
         ;
 
 program
