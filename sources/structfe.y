@@ -121,13 +121,17 @@ postfix_expression
         : primary_expression
         | postfix_expression '(' ')' {
         	printf("<-- Appel de fonction sans argument");
+		char *funcall = malloc(sizeof(char) * (strlen($1) + 3));
+		sprintf(funcall, "%s()", $1);
+		$$ = funcall;
+
         	//$$ = strcat($1, "()");
         	}
         | postfix_expression '(' argument_expression_list ')' {
                 printf("<-- Appel de fonction avec arguments");
-                //char *funcall = malloc(sizeof(char) * (strlen($1) + 3));
-                //sprintf(call, "%s(%s)", $1, $3);
-                //$$ = call;
+		char *funcall = malloc(sizeof(char) * (strlen($1) + strlen($3) + 3));
+                sprintf(funcall, "%s(%s)", $1, $3);
+                $$ = funcall;
                 }
         | postfix_expression '.' IDENTIFIER
         | postfix_expression PTR_OP IDENTIFIER
@@ -135,7 +139,11 @@ postfix_expression
 
 argument_expression_list
         : expression
-        | argument_expression_list ',' expression
+        | argument_expression_list ',' expression {
+	  	char *listargs = malloc(sizeof(char) * (strlen($1) + strlen($3) + 3));
+		sprintf(listargs, "%s, %s", $1, $3);
+		$$ = listargs;
+		}
         ;
 
 unary_expression
