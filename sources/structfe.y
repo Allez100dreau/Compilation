@@ -1,6 +1,8 @@
 %{
 #include <stdio.h>
 #include <string.h>
+
+
 #include "./sources/hashtable.h"
 
 hashtable_t *hashtable;
@@ -94,6 +96,8 @@ main() {
 %type <string> postfix_expression
 %type <string> argument_expression_list
 %type <string> unary_operator
+%type <string> selection_statement
+%type <string> iteration_statement
 
 %union {
         int number;
@@ -270,7 +274,11 @@ struct_declaration
         ;
 
 declarator
-        : '*' direct_declarator
+        : '*' direct_declarator {
+		char *code = malloc(sizeof(char) * (strlen($2) + 2));
+		sprintf(code, "%s%s", $1, $2);
+		$$ = code;
+		}
         | direct_declarator
         ;
 
@@ -286,7 +294,7 @@ direct_declarator
                 char *vide = malloc(sizeof(int) * (strlen($1) + 3));
                 sprintf(vide, "%s()", $1);
                 $$ = vide;
-        }
+        	}
         ;
 
 parameter_list
@@ -318,7 +326,7 @@ compound_statement
                 char *cmpstat = malloc(sizeof(char) * (strlen($2) + strlen($3) + 3));
                 sprintf(cmpstat, "{\n\t%s\n\t%s\n}",$2, $3);
                 $$ = cmpstat;
-        }
+        	}
         ;
 
 declaration_list
@@ -346,12 +354,12 @@ expression_statement
                 char *expr = malloc(sizeof(char) * (strlen($1) + 1));
                 sprintf(expr, "%s;", $1);
                 $$ = expr;
-        }
+        	}
         ;
 
 selection_statement
         : IF '(' expression ')' statement else_statement {
-		char codeStr[1000];
+		char *codeStr = malloc(sizeof(char) * 2000);
 
 		char Labelif[50];
 		char Labelendif[50];
@@ -363,8 +371,9 @@ selection_statement
 		//gencode(codeCdt)
 
 		sprintf(codeStr, "\nif (%s) goto %s;\n%s\ngoto %s;\n%s:\n%s\n%s:\n", "valeurCdt" , Labelif, "bloc_else($6)", Labelendif, Labelif, "bloc_then($5)" , Labelendif);
+		$$ = codeStr;
 
-		gencode(codeStr);
+		//gencode(codeStr);
                 }
         ;
 
@@ -375,7 +384,7 @@ else_statement
 
 iteration_statement
         : WHILE '(' expression ')' statement {
-		/*char codeStr[1000];
+		char *codeStr = malloc(sizeof(char) * 2000);
 
 		char LabelWhile[50];
 		char LabelWhileCdt[50];
@@ -384,11 +393,11 @@ iteration_statement
 
 		//gencode(codeCdt)
 		sprintf(codeStr, "\ngoto %s;\n%s:\n%s\n%s:\nif (%s) goto %s;\n", LabelWhileCdt, LabelWhile, "Bloc_actions_while($5)", LabelWhileCdt, "Conditon_while($3)", LabelWhile);
-
-        	gencode(codeStr);
-        	*/}
+		$$ = codeStr;
+        	//gencode(codeStr);
+        	}
         | FOR '(' expression_statement expression_statement expression ')' statement {
-		/*char codeStr[1000];
+		char *codeStr = malloc(sizeof(char) * 2000);
 
 		char LabelFor[50];
 		char LabelForCdt[50];
@@ -398,8 +407,9 @@ iteration_statement
 		//gencode(codeCdt);
 		sprintf(codeStr, "\n%s\ngoto %s;\n%s:\n%s\n%s\n%s:\nif (%s) goto %s;\n", "init_variable($3)", LabelForCdt, LabelFor ,"Bloc_actions_for($7)", "action_fin_de_boucle($5)", LabelForCdt, "condition_continuation_for($4)", LabelFor);
 
-        	gencode(codeStr);
-        	*/}
+		$$ = codeStr;
+        	//gencode(codeStr);
+        	}
         ;
 
 jump_statement
@@ -419,7 +429,7 @@ program
                 char *prog = malloc(sizeof(char) * (strlen($1) + strlen($2) + 1));
                 sprintf(prog, "%s\n\n%s", $1, $2);
                 gencode(prog);
-        }
+       	}
         ;
 
 external_declaration
