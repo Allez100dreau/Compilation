@@ -1,15 +1,13 @@
-# COMPILATION DU PROJET
-#
-# Un fichier exécutable comme un programme "compilateur" sera créé.
 compilateur: makeflex makebison
-	-gcc -w lex.yy.c structfe.tab.c ./sources/hashtable.c -o compilateur
-	rm lex.yy.c structfe.tab.*
+	-gcc -w fe.yy.c structfe.tab.c ./sources/hashtable.c -o compilateur
+	-gcc -w be.yy.c structbe.tab.c -o parseurbackend
+	mv *.yy.c struct*.tab.* ./output
 
-# Un output : "lex.yy.c"
 makeflex:
-	flex ./sources/frontend.l
+	flex -o fe.yy.c ./sources/frontend.l
+	flex -o be.yy.c ./sources/backend.l
 
-# Deux outputs : "structfe.tab.c" et "structfe.tab.h"
+
 makebison:
-	bison -d ./sources/structfe.y
-
+	bison -d -Wnone ./sources/structfe.y
+	bison -d -Wnone ./sources/structbe.y

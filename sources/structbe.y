@@ -1,8 +1,32 @@
+%{
+#include <stdio.h>
+#include <string.h>
+
+void yyerror(const char *str) {
+        fprintf(stderr,"error: %s\n",str);
+}
+ 
+int yywrap() {
+        return 1;
+}
+  
+main() {
+        yyparse();
+        printf("\n");
+}
+
+%}
+
 %token IDENTIFIER CONSTANT 
 %token LE_OP GE_OP EQ_OP NE_OP
 %token EXTERN
 %token INT VOID
 %token IF RETURN GOTO
+
+%union {
+        int number;
+        char *string;
+}
 
 %start program
 %%
