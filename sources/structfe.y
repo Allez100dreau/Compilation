@@ -41,7 +41,7 @@ int yywrap() {
 }
   
 main() {
-        output = fopen("./backend/test.c", "w");
+        output = fopen("./backend/backend.c", "w");
 
 	if(output == NULL) {
 		fprintf(stderr, "Impossible d'ouvrir le fichier d'output en écriture.\n");
@@ -96,18 +96,14 @@ main() {
 %type <string> unary_operator
 %type <string> selection_statement
 %type <string> iteration_statement
-<<<<<<< HEAD
-%type <string> shift_expression logical_and_expression additive_expression multiplicative_expression relational_expression equality_expression
+%type <string> else_statement
 
 %code requires {
         struct expr {
                 char *code;
-                char *temp;
+                int number;
         };
 }
-=======
-%type <string> else_statement
->>>>>>> 83ecec4432b05787ab822c168e0463f61dcd5d18
 
 %union {
         int number;
