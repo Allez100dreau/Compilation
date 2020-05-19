@@ -129,8 +129,8 @@ postfix_expression
                 //sprintf(call, "%s(%s)", $1, $3);
                 //$$ = call;
                 }
-        | postfix_expression '.' IDENTIFIER
-        | postfix_expression PTR_OP IDENTIFIER
+        | postfix_expression '.' IDENTIFIER // Code inutile ?
+        | postfix_expression PTR_OP IDENTIFIER // Code inutile ?
         ;
 
 argument_expression_list
