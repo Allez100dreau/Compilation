@@ -17,16 +17,14 @@ char *newtmp(void) {
         strcpy(tmp,start);
         strcat(tmp, i);
 
-        /*
         while (ht_get(hashtable, tmp) != NULL) {
                 inc = (atoi(i) + 1);
                 sprintf(i, "%d", inc);
                 strcpy(tmp,start);
                 strcat(start, i);
         }
-        */
 
-        printf("%s", tmp);
+        ht_set(hashtable, tmp, "");
         return tmp;
 }
 
@@ -94,17 +92,27 @@ main() {
 %type <string> statement
 %type <string> jump_statement
 %type <string> postfix_expression
-%type <string> argument_expression_list
+%type <args> argument_expression_list
 %type <string> unary_operator
 %type <string> selection_statement
 %type <string> iteration_statement
+%type <string> shift_expression logical_and_expression additive_expression multiplicative_expression relational_expression equality_expression
+
+%code requires {
+        struct expr {
+                char *code;
+                char *temp;
+        };
+}
 
 %union {
         int number;
         char *string;
+        struct expr args;
 }
 
 %left '+' '-'
+%left '*' '/'
 
 %start program
 %%
@@ -124,9 +132,6 @@ postfix_expression
         	}
         | postfix_expression '(' argument_expression_list ')' {
                 printf("<-- Appel de fonction avec arguments");
-                //char *funcall = malloc(sizeof(char) * (strlen($1) + 3));
-                //sprintf(call, "%s(%s)", $1, $3);
-                //$$ = call;
                 }
         | postfix_expression '.' IDENTIFIER
         | postfix_expression PTR_OP IDENTIFIER
@@ -143,6 +148,8 @@ unary_expression
                 char *unexpr = malloc(sizeof(char) * (strlen($1) + strlen($2) + 1));
                 sprintf(unexpr, "%s%s", $1, $2);
                 $$ = unexpr;
+                printf("Expression : [%s len : %d]", $$, strlen($$));
+                ht_set(hashtable, "adresse", unexpr);
         }
         | SIZEOF sizeof_expression
         | unary_expression INC
@@ -154,8 +161,8 @@ sizeof_expression
         ;
 
 unary_operator
-        : '&'
-        | '*' {printf("ASTERISQUE : %s", $1);}
+        : '&' {$$ = "&";}
+        | '*'
         | '-'
         ;
 
@@ -223,14 +230,20 @@ logical_or_expression
 expression
         : logical_or_expression
         | unary_expression '=' expression {
-		char str[10];
+                printf(" EXPR : %d ", $3);
+                char *str = malloc(sizeof(char) * 10);
 		sprintf(str, "%d", $3);
 		printf("<-- On affecte %s à %s", str, $1);
 		ht_set(hashtable, $1, str);
 		char *affect = malloc(sizeof(char) * (strlen($1) + strlen(str) + 2));
-		sprintf(affect, "%s = %s", $1, str);
+                if (ht_get(hashtable, "adresse") != NULL) {
+                        sprintf(affect, "%s = %s", $1, ht_get(hashtable,"adresse")); 
+                }
+		else {
+                        sprintf(affect, "%s = %s", $1, str);
+                }
 		$$ = affect;
-		}
+        }
         ;
 
 declaration
@@ -276,7 +289,7 @@ struct_declaration
 declarator
         : '*' direct_declarator {
 		char *code = malloc(sizeof(char) * (strlen($2) + 2));
-		sprintf(code, "%s%s", $1, $2);
+		sprintf(code, "%c%s", '*', $2);
 		$$ = code;
 		}
         | direct_declarator
@@ -415,12 +428,12 @@ iteration_statement
 jump_statement
         : RETURN ';' {printf("<-- On retourne");}
         | RETURN expression ';' {
-        	/*char str[10]; sprintf(str, "%d", $2);
+        	char str[10]; sprintf(str, "%d", $2);
                 printf("<-- On retourne %s", str);
                 char *ret = malloc(sizeof(char) * (strlen($1) + strlen(str) + 1));
                 sprintf(ret, "%s %s;", $1, str);
                 $$ = ret;
-        	*/}
+        	}
         ;
 
 program
