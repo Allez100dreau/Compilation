@@ -96,6 +96,7 @@ main() {
 %type <string> unary_operator
 %type <string> selection_statement
 %type <string> iteration_statement
+<<<<<<< HEAD
 %type <string> shift_expression logical_and_expression additive_expression multiplicative_expression relational_expression equality_expression
 
 %code requires {
@@ -104,6 +105,9 @@ main() {
                 char *temp;
         };
 }
+=======
+%type <string> else_statement
+>>>>>>> 83ecec4432b05787ab822c168e0463f61dcd5d18
 
 %union {
         int number;
@@ -133,8 +137,8 @@ postfix_expression
         | postfix_expression '(' argument_expression_list ')' {
                 printf("<-- Appel de fonction avec arguments");
                 }
-        | postfix_expression '.' IDENTIFIER
-        | postfix_expression PTR_OP IDENTIFIER
+        | postfix_expression '.' IDENTIFIER // Code inutile ?
+        | postfix_expression PTR_OP IDENTIFIER // Code inutile ?
         ;
 
 argument_expression_list
@@ -332,9 +336,17 @@ statement
         ;
 
 compound_statement
-        : '{' '}'
-        | '{' statement_list '}'
-        | '{' declaration_list '}'
+        : '{' '}' {$$ = "{}";}
+        | '{' statement_list '} '{
+		char *cmpstat = malloc(sizeof(char) * (strlen($2) + 3));
+		sprintf(cmpstat, "{\n\t%s\n}",$2);
+		$$ = cmpstat;
+		}
+        | '{' declaration_list '} '{
+		  char *cmpstat = malloc(sizeof(char) * (strlen($2) + 3));
+		  sprintf(cmpstat, "{\n\t%s\n}",$2);
+		  $$ = cmpstat;
+		}
         | '{' declaration_list statement_list '}' {
                 char *cmpstat = malloc(sizeof(char) * (strlen($2) + strlen($3) + 3));
                 sprintf(cmpstat, "{\n\t%s\n\t%s\n}",$2, $3);
@@ -372,7 +384,7 @@ expression_statement
 
 selection_statement
         : IF '(' expression ')' statement else_statement {
-		char *codeStr = malloc(sizeof(char) * 2000);
+		char *codeStr = malloc(sizeof(char) * 7000);
 
 		char Labelif[50];
 		char Labelendif[50];
@@ -381,47 +393,41 @@ selection_statement
 
 		// On génère le code pour trouver la valeur "valeurCdt" de la condition avant le if, puis on la récupère et on la met dans le if.
 		// Rendre unique le nom de la valeur ?
-		//gencode(codeCdt)
 
-		sprintf(codeStr, "\nif (%s) goto %s;\n%s\ngoto %s;\n%s:\n%s\n%s:\n", "valeurCdt" , Labelif, "bloc_else($6)", Labelendif, Labelif, "bloc_then($5)" , Labelendif);
+		sprintf(codeStr, "\nif (%s) goto %s;\n%s\ngoto %s;\n%s:\n%s\n%s:\n", "valeurCdt" , Labelif, $6, Labelendif, Labelif, $5, Labelendif);
 		$$ = codeStr;
 
-		//gencode(codeStr);
                 }
         ;
 
 else_statement
-        : %empty
-        | ELSE statement
+        : %empty {$$ = "";}
+        | ELSE statement {$$ = $2;}
         ;
 
 iteration_statement
         : WHILE '(' expression ')' statement {
-		char *codeStr = malloc(sizeof(char) * 2000);
+		char *codeStr = malloc(sizeof(char) * 7000);
 
 		char LabelWhile[50];
 		char LabelWhileCdt[50];
 		sprintf(LabelWhile, "Label%s%i", "While", incLabel++);
 		sprintf(LabelWhileCdt, "Label%s%i", "WhileCdt", incLabel++);
 
-		//gencode(codeCdt)
-		sprintf(codeStr, "\ngoto %s;\n%s:\n%s\n%s:\nif (%s) goto %s;\n", LabelWhileCdt, LabelWhile, "Bloc_actions_while($5)", LabelWhileCdt, "Conditon_while($3)", LabelWhile);
+		sprintf(codeStr, "\ngoto %s;\n%s:\n%s\n%s:\nif (%s) goto %s;\n", LabelWhileCdt, LabelWhile, $5, LabelWhileCdt, "Conditon_while($3)", LabelWhile);
 		$$ = codeStr;
-        	//gencode(codeStr);
         	}
         | FOR '(' expression_statement expression_statement expression ')' statement {
-		char *codeStr = malloc(sizeof(char) * 2000);
+		char *codeStr = malloc(sizeof(char) * 7000);
 
 		char LabelFor[50];
 		char LabelForCdt[50];
 		sprintf(LabelFor, "Label%s%i", "For", incLabel++);
 		sprintf(LabelForCdt, "Label%s%i", "ForCdt", incLabel++);
 
-		//gencode(codeCdt);
-		sprintf(codeStr, "\n%s\ngoto %s;\n%s:\n%s\n%s\n%s:\nif (%s) goto %s;\n", "init_variable($3)", LabelForCdt, LabelFor ,"Bloc_actions_for($7)", "action_fin_de_boucle($5)", LabelForCdt, "condition_continuation_for($4)", LabelFor);
+		sprintf(codeStr, "\n%s\ngoto %s;\n%s:\n%s\n%s\n%s:\nif (%s) goto %s;\n", "init_variable($3)", LabelForCdt, LabelFor ,$7, "action_fin_de_boucle($5)", LabelForCdt, "condition_continuation_for($4)", LabelFor);
 
 		$$ = codeStr;
-        	//gencode(codeStr);
         	}
         ;
 
