@@ -71,7 +71,7 @@ main() {
 %token <string> STRUCT 
 %token <string> IF ELSE WHILE FOR RETURN
 %token INC
-%token <string> '*' '-' '&'
+%token <string> '*' '-' '&' ';'
 
 %type <string> declaration_specifiers
 %type <string> direct_declarator
@@ -100,6 +100,13 @@ main() {
 %type <string> iteration_statement
 %type <string> else_statement
 %type <string> sizeof_expression
+%type <string> logical_or_expression
+%type <string> logical_and_expression
+%type <string> equality_expression
+%type <string> relational_expression
+%type <string> additive_expression
+%type <string> multiplicative_expression
+%type <string> shift_expression
 
 %union {
         int number;
@@ -130,8 +137,6 @@ postfix_expression
 		char *funcall = malloc(sizeof(char) * (strlen($1) + 3));
 		sprintf(funcall, "%s()", $1);
 		$$ = funcall;
-
-        	//$$ = strcat($1, "()");
         	}
         | postfix_expression '(' argument_expression_list ')' {
                 printf("<-- Appel de fonction avec arguments");
@@ -158,9 +163,13 @@ postfix_expression
 argument_expression_list
         : expression
         | argument_expression_list ',' expression {
-	  	char *listargs = malloc(sizeof(char) * (strlen($1) + strlen($3) + 3));
+	  	char *listargs = malloc(sizeof(char) * (strlen($1) + strlen($3) + 5));
 		sprintf(listargs, "%s, %s", $1, $3);
-		$$ = listargs;
+
+		// todo : afficher la vraie liste ! ... Sans le core dumped...
+
+
+		$$ = "listargs";
 		}
         ;
 
@@ -193,9 +202,9 @@ sizeof_expression
         ;
 
 unary_operator
-        : '&' {printf("ESPERLUETTE : %s", $1);}
-        | '*' {printf("ASTERISQUE : %s", $1);}
-        | '-' {printf("NUMBER NEG : %s", $1);}
+        : '&'
+        | '*'
+        | '-'
         ;
 
 shift_expression
@@ -323,9 +332,9 @@ declarator
 
 direct_declarator
         : IDENTIFIER
-        | '(' declarator ')'
+        | '(' declarator ')' {$$ = $2;}
         | direct_declarator '(' parameter_list ')' {
-                char *code = malloc(sizeof(char) * 50);
+                char *code = malloc(sizeof(char) * (strlen($1) + strlen($3) + 3));
                 sprintf(code,"%s(%s)", $1, $3);
                 $$ = code;
                 }
@@ -343,7 +352,7 @@ parameter_list
 
 parameter_declaration
         : declaration_specifiers declarator {
-                char *code = malloc(sizeof(char) * 50);
+                char *code = malloc(sizeof(char) * (strlen($1) + strlen($2) + 1));
                 sprintf(code, "%s %s", $1, $2);
                 $$ = code;
         	}
@@ -359,12 +368,12 @@ statement
 
 compound_statement
         : '{' '}' {$$ = "{}";}
-        | '{' statement_list '} '{
+        | '{' statement_list '}' {
 		char *cmpstat = malloc(sizeof(char) * (strlen($2) + 3));
 		sprintf(cmpstat, "{\n\t%s\n}",$2);
 		$$ = cmpstat;
 		}
-        | '{' declaration_list '} '{
+        | '{' declaration_list '}' {
 		  char *cmpstat = malloc(sizeof(char) * (strlen($2) + 3));
 		  sprintf(cmpstat, "{\n\t%s\n}",$2);
 		  $$ = cmpstat;
