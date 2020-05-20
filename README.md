@@ -9,7 +9,7 @@ Cela va produire deux programmes:
 
 Les fichiers produits par lex et yacc se trouveront dans le dossier /output.
 
-Cela va également traduire tous les fichiers se trouvant dans /tests. Les fichiers traduits se trouveront dans le dossier /backend sous le nom "<nom-du-fichier>_be.c".
+Cela va également traduire tous les fichiers se trouvant dans /tests. Les fichiers traduits se trouveront dans le dossier /backend sous le nom "*<nom-du-fichier*>_be.c".
 
 
 
