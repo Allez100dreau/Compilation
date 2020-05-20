@@ -148,7 +148,6 @@ unary_expression
                 char *unexpr = malloc(sizeof(char) * (strlen($1) + strlen($2) + 1));
                 sprintf(unexpr, "%s%s", $1, $2);
                 $$ = unexpr;
-                printf("Expression : [%s len : %d]", $$, strlen($$));
                 ht_set(hashtable, "adresse", unexpr);
         }
         | SIZEOF sizeof_expression
@@ -230,7 +229,6 @@ logical_or_expression
 expression
         : logical_or_expression
         | unary_expression '=' expression {
-                printf(" EXPR : %d ", $3);
                 char *str = malloc(sizeof(char) * 10);
 		sprintf(str, "%d", $3);
 		printf("<-- On affecte %s à %s", str, $1);
