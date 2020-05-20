@@ -1,11 +1,11 @@
 # COMPILER LE PROJET
 
-Pour compiler le projet, il suffit d'exécuter la commande 'make' à la racine du projet.
+Pour compiler le projet, il suffit d'exécuter la commande `make` à la racine du projet.
 
 Cela va produire deux programmes:
 
-- 'compilateur' : Le compilateur.
-- 'parsebe' : Le parseur pour le langage STRUCIT-backend.
+- `compilateur` : Le compilateur.
+- `parsebe` : Le parseur pour le langage STRUCIT-backend.
 
 Les fichiers produits par lex et yacc se trouveront dans le dossier /output.
 
@@ -15,7 +15,7 @@ Cela va également traduire tous les fichiers se trouvant dans /tests. Les fichi
 
 Il est également possible de tester chaque fichier individuellement. Pour cela, il faut se placer dans la racine du projet et exécuter la commande suivante:
 
-'./compilateur < tests/<nom-du-fichier>.c'
+`./compilateur < tests/<nom-du-fichier>.c`
 
 Si le programme en entrée est correct lexicalement et syntaxiquement, il sera affiché sur la sortie standard. On pourra voir la table des symboles affichée à la fin également.
 
@@ -25,7 +25,7 @@ Le fichier traduit sera /backend/backend.c.
 
 Pour vérifier qu'un fichier écrit en STRUCIT-backend est correct lexicalement et syntaxiquement, on utilise le parseur en exécutant la commande suivante:
 
-'./parsebe < backend/<nom-du-fichier>.c'
+`./parsebe < backend/<nom-du-fichier>.c`
 
 Si le programme en entrée est correct lexicalement et syntaxiquement, il sera affiché sur la sortie standard.
 
